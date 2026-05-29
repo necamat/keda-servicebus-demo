@@ -1,0 +1,29 @@
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: azure-queue-auth
+spec:
+  secretTargetRef:
+    - parameter: connection
+      name: app-secrets
+      key: azure-storage-connection-string
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: consumer-scaler
+spec:
+  scaleTargetRef:
+    name: consumer
+  minReplicaCount: 0
+  maxReplicaCount: 5
+  triggers:
+    - type: azure-queue
+      metadata:
+        queueName: {{ .Values.queueName }}
+        queueLength: "5"
+        accountName: devstoreaccount1
+        cloud: none
+        endpointSuffix: "localhost:10001/devstoreaccount1"
+      authenticationRef:
+        name: azure-queue-auth

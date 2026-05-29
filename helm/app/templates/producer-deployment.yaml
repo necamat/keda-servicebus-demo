@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer
+  labels:
+    app: producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+        - name: producer
+          image: {{ .Values.producer.image }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: AzureStorage__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: azure-storage-connection-string
+            - name: AzureStorage__QueueName
+              value: {{ .Values.queueName }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: producer
+spec:
+  selector:
+    app: producer
+  ports:
+    - port: 80
+      targetPort: 8080

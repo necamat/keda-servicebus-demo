@@ -1,0 +1,11 @@
+producer:
+  image: ghcr.io/necamat/keda-servicebus-demo/producer:latest
+
+consumer:
+  image: ghcr.io/necamat/keda-servicebus-demo/consumer:latest
+
+queueName: demo-queue
+
+azureStorageConnectionString: "UseDevelopmentStorage=true"
+
+postgresqlConnectionString: "Host=postgres;Port=5432;Database=kedademo;Username=postgres;Password=postgres"

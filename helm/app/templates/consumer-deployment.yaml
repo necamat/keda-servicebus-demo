@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer
+  labels:
+    app: consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      containers:
+        - name: consumer
+          image: {{ .Values.consumer.image }}
+          env:
+            - name: AzureStorage__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: azure-storage-connection-string
+            - name: AzureStorage__QueueName
+              value: {{ .Values.queueName }}
+            - name: ConnectionStrings__PostgreSQL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: postgresql-connection-string
