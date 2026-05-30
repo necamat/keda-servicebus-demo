@@ -2,10 +2,13 @@ using Azure.Storage.Queues;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton(sp =>
+builder.Services.AddSingleton<QueueClient>(sp =>
 {
-    var connectionString = builder.Configuration["AzureStorage:ConnectionString"];
-    var queueName = builder.Configuration["AzureStorage:QueueName"];
+    var config = sp.GetRequiredService<IConfiguration>();
+    var connectionString = config["AzureStorage:ConnectionString"]
+        ?? throw new InvalidOperationException("AzureStorage:ConnectionString is not set");
+    var queueName = config["AzureStorage:QueueName"]
+        ?? throw new InvalidOperationException("AzureStorage:QueueName is not set");
     var client = new QueueClient(connectionString, queueName);
     client.CreateIfNotExists();
     return client;

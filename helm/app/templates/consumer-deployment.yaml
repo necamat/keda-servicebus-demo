@@ -17,6 +17,7 @@ spec:
       containers:
         - name: consumer
           image: {{ .Values.consumer.image }}
+          imagePullPolicy: Never
           env:
             - name: AzureStorage__ConnectionString
               valueFrom:
