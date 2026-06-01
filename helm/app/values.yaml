@@ -2,7 +2,7 @@ producer:
   image: producer:v3
 
 consumer:
-  image: consumer:v2
+  image: consumer:v4
 
 queueName: demo-queue
 

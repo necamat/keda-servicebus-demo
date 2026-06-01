@@ -23,7 +23,7 @@ public class Worker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            QueueMessage[] messages = await _queueClient.ReceiveMessagesAsync(maxMessages: 10, cancellationToken: stoppingToken);
+            QueueMessage[] messages = await _queueClient.ReceiveMessagesAsync(maxMessages: 1, cancellationToken: stoppingToken);
 
             foreach (var message in messages)
             {
@@ -48,6 +48,7 @@ public class Worker : BackgroundService
                     });
 
                     await db.SaveChangesAsync(stoppingToken);
+                    await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
                     await _queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
                 }
                 catch (Exception ex)

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: azurite
+  namespace: keda
+spec:
+  type: ExternalName
+  externalName: azurite.default.svc.cluster.local
