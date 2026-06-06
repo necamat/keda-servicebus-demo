@@ -17,15 +17,15 @@ A producer accepts HTTP requests and drops messages onto a queue. A worker consu
               ▼
       ┌───────────────┐        enqueue        ┌──────────────────┐
       │   Producer    │ ────────────────────► │  Storage Queue   │
-      │ (Minimal API) │                        │    (Azurite)     │
-      └───────────────┘                        └──────────────────┘
-                                                    │        ▲
-                                       queue depth  │        │ dequeue
-                                       (polled)     ▼        │
-                                       ┌──────────────────┐  │
-                                       │      KEDA        │  │
-                                       │  ScaledObject    │  │
-                                       └──────────────────┘  │
+      │ (Minimal API) │                       │    (Azurite)     │
+      └───────────────┘                       └──────────────────┘
+                                                    │         ▲
+                                       queue depth  │         │ dequeue
+                                       (polled)     ▼         │
+                                       ┌──────────────────┐   │
+                                       │      KEDA        │   │
+                                       │  ScaledObject    │   │
+                                       └──────────────────┘   │
                                                  │ scales     │
                                                  ▼            │
                                        ┌──────────────────┐   │
@@ -68,7 +68,9 @@ Everything runs inside Kubernetes (local: minikube), deployed via a single Helm 
 3. **KEDA** polls the queue length. When messages pile up, it scales the **Consumer** deployment out (up to 5 replicas); when the queue drains, it scales back in — down to **zero** replicas.
 4. Each Consumer replica dequeues messages, writes a `ProcessedMessage` row to **PostgreSQL**, and deletes the message from the queue.
 
-The scaling threshold (`queueLength`) and bounds (`minReplicaCount: 0`, `maxReplicaCount: 5`) live in the KEDA `ScaledObject`.
+![KEDA autoscaling demo](docs/scaling-demo.gif)
+
+> Consumer scales from 0 → 5 replicas as messages accumulate, then back to 0 once the queue drains.
 
 ---
 
