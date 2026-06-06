@@ -48,7 +48,6 @@ public class Worker : BackgroundService
                     });
 
                     await db.SaveChangesAsync(stoppingToken);
-                    await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
                     await _queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
                 }
                 catch (Exception ex)

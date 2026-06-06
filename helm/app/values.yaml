@@ -6,6 +6,8 @@ consumer:
 
 queueName: demo-queue
 
+# Well-known Azurite emulator account key — publicly documented, safe to commit.
+# Real Azure credentials would come from a sealed secret or external secret manager.
 azureStorageConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;QueueEndpoint=http://azurite:10001/devstoreaccount1;TableEndpoint=http://azurite:10002/devstoreaccount1;"
 
 postgresqlConnectionString: "Host=postgres;Port=5432;Database=kedademo;Username=postgres;Password=postgres"

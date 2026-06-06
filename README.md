@@ -76,6 +76,25 @@ The scaling threshold (`queueLength`) and bounds (`minReplicaCount: 0`, `maxRepl
 
 The interesting part of this project wasn't the happy path — it was making KEDA, Azurite, and Kubernetes networking cooperate. Three problems were worth documenting:
 
+## Trade-offs and what I'd do differently in production
+
+This project is intentionally scoped as a local demo. A few conscious trade-offs worth naming:
+
+**Azurite instead of real Azure Storage Queue.**
+Azurite keeps the project free and self-contained. In production, Azure Storage Queue would be replaced with a real namespace and KEDA would authenticate via Workload Identity (pod-level Azure AD identity) instead of a connection string with an account key.
+
+**DB migration at application startup.**
+The Consumer runs `MigrateAsync()` on startup. This is convenient for a demo but problematic in production — multiple replicas racing to migrate the same schema. The right approach is a dedicated Kubernetes `Job` that runs migrations once before the Consumer deployment rolls out.
+
+**No retry or dead-letter handling.**
+If message processing fails, the message becomes visible again after its visibility timeout expires and will be retried. There is no dead-letter queue, no max delivery count check, and no poison-message handling. For production, these would be essential.
+
+**Connection string in Helm values.**
+The Azurite account key is the publicly documented emulator key — safe to commit. Real credentials should never appear in a values file; they would come from a sealed secret (e.g. Sealed Secrets or External Secrets Operator) injected at deploy time.
+
+**Local cluster only.**
+The CD pipeline builds and publishes images to ghcr.io but does not deploy to the cluster — minikube runs on a local machine with no inbound access from GitHub Actions. In a cloud environment (AKS, EKS, GKE), the CD job would run `helm upgrade` after pushing the image.
+
 ### 1. Path-style vs. subdomain-style storage addressing
 Azure Storage resolves the account name either from the host (`account.queue.core.windows.net`, *subdomain-style*) or from the URL path (`http://host/devstoreaccount1/...`, *path-style*). When the queue endpoint host contains dots, Azurite tries subdomain-style and reads the first label as the account name — which no longer matches the account the SharedKey signature was built for, producing `400 Bad Request`. Using a **single-label host** keeps Azurite on path-style addressing, which is what the emulator credentials expect.
 
