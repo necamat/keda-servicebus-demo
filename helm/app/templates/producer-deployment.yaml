@@ -17,7 +17,6 @@ spec:
       containers:
         - name: producer
           image: {{ .Values.producer.image }}
-          imagePullPolicy: Never
           ports:
             - containerPort: 8080
           env:
